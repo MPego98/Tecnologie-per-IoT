@@ -3,14 +3,14 @@
 #include <BridgeClient.h>
 #include <Process.h>
 #include <ArduinoJson.h>
-
+#include <MQTTclient.h>
 
 #define B 4275
 #define  R0 100000
 
 //temperature sensor
 const int Temp_Pin= A1;
-long int tim=0;
+long int tim=0,tim1=0;
 const int capacity= JSON_OBJECT_SIZE(2)+JSON_ARRAY_SIZE(1)+JSON_OBJECT_SIZE(5)+40;
 DynamicJsonDocument doc_snd(capacity);
 void setup() {
@@ -23,7 +23,7 @@ void setup() {
   digitalWrite(LED_BUILTIN,HIGH);
   Serial.begin(9600);
   Serial.println("starting...");
-
+  mqtt.begin("test.mosquitto.org",1883);
 
 }
 
@@ -39,15 +39,13 @@ float ReadTemperature()
 void Update_Stat()
 {
    doc_snd.clear();
-  doc_snd["bn"]="Yun";
-  doc_snd["e"][0]["n"]="Temperature";
-   doc_snd["e"][0]["t"]=millis()/1000;
-   doc_snd["e"][0]["v"]=ReadTemperature();
-    doc_snd["e"][0]["u"]="C";
+  doc_snd["ID"]="Yun";
+  doc_snd["endPoint"]="tiot/17/temperature";
+   doc_snd["avaibleResources"]="temperature";
 
   String output;
   serializeJson(doc_snd,output);
-Serial.println(output);
+ Serial.println(output);
  printResponce(postRequest(output));
 }
 int postRequest(String data){
@@ -57,15 +55,33 @@ int postRequest(String data){
   p.addParameter("-H");
   p.addParameter("Content-Type: application/json");
   p.addParameter("-X");
-  p.addParameter("POST");
+  p.addParameter("PUT");
   p.addParameter("-d");
   p.addParameter(data);
 
-  p.addParameter("http://192.168.1.4:8080/log");
+  p.addParameter("http://192.168.1.8:8080/device");
   
   p.run();
 
   return p.exitValue();
+}
+
+String senMlEncode(String res, float v, String unit)
+{
+  doc_snd.clear();
+  doc_snd["bn"]="Yun";
+  doc_snd["e"][0]["n"]=res;
+   doc_snd["e"][0]["t"]=millis()/1000;
+   doc_snd["e"][0]["v"]=v;
+  if(unit!="")
+    doc_snd["e"][0]["u"]=unit;
+  else
+     doc_snd["e"][0]["u"]=(char*) NULL;
+  String output;
+  serializeJson(doc_snd,output);
+ 
+  return output;
+   
 }
 void printResponce(int code)
 {
@@ -76,9 +92,20 @@ void loop() {
  
 if(millis()-tim>30000)
   {
-  
+   // Serial.println("30 sec");
     Update_Stat();
+    
     tim=millis();
+    
+  }
+  if(millis()-tim1>10000)
+  {
+   // Serial.println("10 sec");
+   
+    String message= senMlEncode("temperature",ReadTemperature(),"Cel");
+    Serial.println(message);
+    mqtt.publish("tiot/17/temperature",message);
+    tim1=millis();
     
   }
 

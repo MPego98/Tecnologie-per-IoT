@@ -3,19 +3,20 @@
 #include <BridgeClient.h>
 #include <Process.h>
 #include <ArduinoJson.h>
-
+#include <MQTTclient.h>
 
 #define B 4275
 #define  R0 100000
 
 //temperature sensor
-const int Temp_Pin= A1;
+const int Led_Pin= 7;
 long int tim=0;
 const int capacity= JSON_OBJECT_SIZE(2)+JSON_ARRAY_SIZE(1)+JSON_OBJECT_SIZE(5)+40;
+DynamicJsonDocument doc_rec(capacity);
 DynamicJsonDocument doc_snd(capacity);
 void setup() {
   
-  pinMode(Temp_Pin,INPUT);
+ pinMode(Led_Pin, OUTPUT);
  
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN,LOW);
@@ -23,31 +24,36 @@ void setup() {
   digitalWrite(LED_BUILTIN,HIGH);
   Serial.begin(9600);
   Serial.println("starting...");
-
-
+  mqtt.begin("test.mosquitto.org",1883);
+  mqtt.subscribe("tiot/17/led",setLedValue);
 }
 
-float ReadTemperature()
+void setLedValue(const String& topic, const String& subtopic, const String& message)
 {
-  int a = analogRead(Temp_Pin);
-
-    float R = 1023.0/a-1.0;
-    R = R0*R;
-   float temperature = (1.0/((log(R/R0)/B)+(1/298.15)))-273.15; // convert to temperature via datasheet
- return temperature;
+  DeserializationError err = deserializeJson(doc_rec,message);
+  if(err)
+  {
+    Serial.print(F("deserializedJson failed with code"));
+    Serial.println(err.c_str());
+  }else
+  if( doc_rec["e"][0]["n"]=="led")
+  {
+    int val=doc_rec["e"][0]["v"];
+    if(val==1||val==0)
+    {
+      digitalWrite(Led_Pin,val);
+    }
+  }
 }
 void Update_Stat()
 {
    doc_snd.clear();
-  doc_snd["bn"]="Yun";
-  doc_snd["e"][0]["n"]="Temperature";
-   doc_snd["e"][0]["t"]=millis()/1000;
-   doc_snd["e"][0]["v"]=ReadTemperature();
-    doc_snd["e"][0]["u"]="C";
-
+  doc_snd["ID"]="Yun";
+  doc_snd["endPoint"]="tiot/17/led";
+  doc_snd["avaibleResources"]="led";
   String output;
   serializeJson(doc_snd,output);
-Serial.println(output);
+ Serial.println(output);
  printResponce(postRequest(output));
 }
 int postRequest(String data){
@@ -57,27 +63,30 @@ int postRequest(String data){
   p.addParameter("-H");
   p.addParameter("Content-Type: application/json");
   p.addParameter("-X");
-  p.addParameter("POST");
+  p.addParameter("PUT");
   p.addParameter("-d");
   p.addParameter(data);
 
-  p.addParameter("http://192.168.1.4:8080/log");
+  p.addParameter("http://192.168.1.8:8080/device");
   
   p.run();
 
   return p.exitValue();
 }
+
+
 void printResponce(int code)
 {
   Serial.println("Status: "+String(code));
 
 }
 void loop() {
- 
+ mqtt.monitor();
 if(millis()-tim>30000)
   {
-  
+   // Serial.println("30 sec");
     Update_Stat();
+    
     tim=millis();
     
   }

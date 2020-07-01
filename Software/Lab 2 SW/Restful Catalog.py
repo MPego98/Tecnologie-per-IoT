@@ -10,6 +10,7 @@ class Device(object):
             pass
       def PUT(self, **params):
             body=cherrypy.request.body.read()
+            print(str(body))
             json_body=json.loads(body.decode('utf-8'))
             device=worker.Device_dict
             device['ID']=json_body['ID']
@@ -50,7 +51,7 @@ class Service(object):
             service['ID']=json_body['ID']
             service['endPoint']=json_body['endPoint']
             service['Description']=json_body['Description']
-            worker.addUser(service)
+            worker.addService(service)
           
       def GET(self,*uri,**params):
         #Standard output

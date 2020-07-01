@@ -34,7 +34,7 @@ class WorkCatalog(object):
                 "TimeStamp":None
                 }
        self.Catalog={
-              "messageBroker":"Broker",
+              "messageBroker":["test.mosquitto.org",1883],
               "Device":{},
               "User":{},
               "Service":{}
@@ -93,7 +93,7 @@ class WorkCatalog(object):
             if attual_time-oldTime>120:#120 = 2 min
                k.append(keys)
         for ele in k:
-            del(Cat['Device'][ele])
+            del(Cat['Service'][ele])
         self.work.WriteFile(Cat)
      def returnDevice(self,ID):
         Cat=self.work.LoadFile()
