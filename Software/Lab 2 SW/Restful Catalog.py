@@ -10,13 +10,12 @@ class Device(object):
             pass
       def PUT(self, **params):
             body=cherrypy.request.body.read()
-            print(str(body))
+            print(body)
             json_body=json.loads(body.decode('utf-8'))
             device=worker.Device_dict
             device['ID']=json_body['ID']
             device['endPoint']=json_body['endPoint']
             device['avaibleResources']=json_body['avaibleResources']
-            print(device)
             worker.addDevice(device)
             
       def GET(self,*uri,**params):

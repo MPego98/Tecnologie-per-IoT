@@ -1,1 +1,1 @@
-{"messageBroker": ["test.mosquitto.org", 1883], "Device": {}, "User": {}, "Service": {"0": {"ID": "Smart House", "Description": "Control the smart house", "endPoint": "", "TimeStamp": 1593605590}}}
+{"messageBroker": ["test.mosquitto.org", 1883], "Device": {}, "User": {}, "Service": {}}
