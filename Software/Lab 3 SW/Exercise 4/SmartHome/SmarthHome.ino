@@ -96,7 +96,7 @@ void setup() {
   //Serial set
 
   mqtt.begin("test.mosquitto.org",1883);
-  mqtt.subscribe("tiot/17/home/control/#",setValue);
+  mqtt.subscribe("tiot/17/house/control/#",setValue);
 
 
   
@@ -211,7 +211,7 @@ void Update(){
    
   p.addParameter("PUT");
   p.addParameter("-d");
-  p.addParameter(F("{\"ID\":\"Yun\",\"endPoint\":\"/tiot/17/house\",\"avaibleResources\":[\"led\",\"temperature\",\"screen\",\"presence\",\"noise\"]}"));
+  p.addParameter(F("{\"ID\":\"Yun\",\"endPoint\":\"/tiot/17/home/sens\",\"avaibleResources\":[\"led\",\"temperature\",\"screen\",\"presence\",\"noise\"]}"));
 
   p.addParameter("http://192.168.1.7:8080/device");
   
@@ -243,8 +243,8 @@ void loop() {
       presenceP=true;
   else
       presenceP=false;
- Serial.println("LOOP");
-   Update();     
+
+    
 //this part control if there are people based on the sound sensor
  if(counterS>60 )// check if one minutes is passed
    {
@@ -273,11 +273,11 @@ void loop() {
  if(millis()-tim>10000)
  { 
     String message= senMlEncode(("temperature"),ReadTemperature(),"Cel");
-    mqtt.publish(F("tiot/17/house/temperature"),message);
+    mqtt.publish(F("tiot/17/house/sens/temperature"),message);
     message= senMlEncode("presence",presenceP,"");
-    mqtt.publish(F("tiot/17/house/presence"),message);
+    mqtt.publish(F("tiot/17/house/sens/presence"),message);
     message= senMlEncode("noise",presenceS,"");
-    mqtt.publish(F("tiot/17/house/noise"),message);
+    mqtt.publish(F("tiot/17/house/sens/noise"),message);
  
     tim=millis();
  }

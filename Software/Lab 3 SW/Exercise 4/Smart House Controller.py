@@ -24,7 +24,7 @@ def sendData():
     load=json.dumps({
               "ID": "Smart House",
               "Description":"Control the smart house",
-              "endPoint":"",
+              "endPoint":"/tiot/17/house/control",
             })
     requests.put('http://localhost:8080/service/', data=load)        
            
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     s='http://localhost:8081/device/one?ID=Yun'
     topic=requests.get(s)
     topic=topic.json()
-    Sub=Subscriber("Temperature",broker,topic['endPoint'],GetData)
+    Sub=Subscriber("sub",broker,topic['endPoint'],GetData)
     Publish = Publisher("pub",broker)
     Sub.start()
     Publish.start()
@@ -85,7 +85,7 @@ if __name__ == "__main__":
                      ]
                 }
         
-        Publish.myPublish("/tiot/17/home/control/light",json.dumps(light))
+        Publish.myPublish("/tiot/17/house/control/light",json.dumps(light))
         if on:
                 t="acceso"
         else:
@@ -101,7 +101,7 @@ if __name__ == "__main__":
                            }
                      ]
                 }
-        Publish.myPublish("/tiot/17/home/control/screen",json.dumps(text))
+        Publish.myPublish("/tiot/17/house/control/screen",json.dumps(text))
         fan,heat=control();
         fan_j ={
                   "bn":"control",
@@ -125,8 +125,8 @@ if __name__ == "__main__":
                            }
                      ]
                 }
-        Publish.myPublish("/tiot/17/home/control/fan",json.dumps(fan_j))
-        Publish.myPublish("/tiot/17/home/control/heat",json.dumps(heat_j))
+        Publish.myPublish("/tiot/17/house/control/fan",json.dumps(fan_j))
+        Publish.myPublish("/tiot/17/house/control/heat",json.dumps(heat_j))
         on=not on
         time.sleep(10)
     Sub.stop()

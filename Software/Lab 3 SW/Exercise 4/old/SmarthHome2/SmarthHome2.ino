@@ -45,21 +45,9 @@ int MobileBlock[event_time];
 int abs_time=0; //rapresente the number of time that for "time_event" minute the is not enought sound
 volatile  int wait=0;
 //pir
-
 volatile  int counterP=0;
-
 volatile bool presenceP=false;
 volatile int counter_eventP=0;
-//screen
-
-
-//light
-
-
-
-
-
-
 String heartbit;
  const int capacity=JSON_OBJECT_SIZE(8)+40;
   //DynamicJsonDocument doc_snd(capacity);
@@ -84,9 +72,6 @@ void setup() {
   lcd.setBacklight(150);
   lcd.home();
   lcd.clear();
- 
-  
-   
   //fan set
   pinMode(Fan_Pin,OUTPUT);
  //analogWrite(Fan_Pin,0);
@@ -97,7 +82,7 @@ void setup() {
   pinMode(Temp_Pin,INPUT);
   //sound set
   pinMode(Sound_Pin,INPUT);
-//  attachInterrupt(digitalPinToInterrupt(Sound_Pin),CheckPresenceS,RISING);
+  attachInterrupt(digitalPinToInterrupt(Sound_Pin),CheckPresenceS,RISING);
   //Pir set
   pinMode(Pir_Pin,INPUT);
   //Serial set
