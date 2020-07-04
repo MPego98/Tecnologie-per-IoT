@@ -12,6 +12,7 @@ import requests
 import threading
 from Subscriber import Subscriber
 from Publisher import Publisher
+broker=["test.mosquitto.org", 1883]
 class MainApp(App):
 
     def build(self):
@@ -386,9 +387,9 @@ class MainApp(App):
             body=msg.payload.decode("utf-8")
             print(body)
             js=json.loads(body)
-            self.Temperature_data.text ="Temperature: "+ str(js['temperature'])+" "+js['unit']
+            self.Temperature_data.text =str(js['temperature'])+" "+js['unit']
             self.temperature=js['temperature']
-            self.Presence_data.text="Presence: "+str(js['presence'])
+            self.Presence_data.text=str(js['presence'])
             self.presence=js['presence']
  
     def automatic_system(self,dt):
@@ -446,10 +447,7 @@ if __name__ == '__main__':
     sensSub=Subscriber("Temperature",broker,topic['endPoint'],app.myOnMessageReceived)
     sensSub.start()
  
-    test= Publisher("MyPublisher",broker)
-    test.start()
-    test.myPublish ('/tiot/17/house/control',json.dumps(diz))
-    test.stop()
+  
     Clock.schedule_interval(app.automatic_system, 20)
     app.run()
 

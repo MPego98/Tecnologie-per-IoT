@@ -1,1 +1,1 @@
-{"messageBroker": ["test.mosquitto.org", 1883], "Device": {}, "User": {}, "Service": {}}
+{"messageBroker": ["test.mosquitto.org", 1883], "Device": {"0": {"ID": "house", "endPoint": "/tiot/17/house/sens", "avaibleResources": ["Temperature", "sound"], "TimeStamp": 1593857472}}, "User": {}, "Service": {}}
